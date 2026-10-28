@@ -1,0 +1,124 @@
+"""ШАГ 2 МИНУС: вычесть инструмент (голос) из окружения.
+
+Движки:
+  roformer — Mel-Band RoFormer (vocals SDR 11.21 dB, мировой №1 SDX'23);
+             запускается MSST-совместимым внешним скриптом при наличии весов.
+  demucs   — htdemucs (8.04 dB), MIT, доказан прогоном №2 (0.9992).
+  auto     — roformer если есть веса, иначе demucs (с записью в ledger).
+После разделения — контроль сборки: vocals+accompaniment vs источник.
+"""
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import numpy as np
+
+from . import judges
+from .config import Config
+from .ledger import Ledger
+
+
+def _run_demucs(cfg: Config, src: Path, out_root: Path, model: str) -> dict:
+    out_root.mkdir(parents=True, exist_ok=True)
+    cmd = [sys.executable, "-m", "demucs", "--two-stems", "vocals",
+           "-n", model, "-o", str(out_root), str(src)]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        return {"error": f"demucs вернул {proc.returncode}: {proc.stderr[-800:]}",
+                "cmd": cmd}
+    song_dir = out_root / model / src.stem
+    vocals = song_dir / "vocals.wav"
+    accomp = song_dir / "no_vocals.wav"
+    if not vocals.exists():
+        return {"error": f"нет {vocals} после demucs", "cmd": cmd}
+    return {"vocals": str(vocals), "accompaniment": str(accomp), "engine": "demucs"}
+
+
+def _run_roformer(cfg: Config, src: Path, out_root: Path) -> dict:
+    r = cfg["minus"]["roformer"]
+    weights = Path(r.get("weights_dir", ""))
+    if not weights.exists() or not any(weights.glob("*")):
+        return {"error": "веса roformer не найдены (minus.roformer.weights_dir пуст)"}
+    out_root.mkdir(parents=True, exist_ok=True)
+    cmd = [r.get("python", sys.executable), r.get("entry", "msst_infer.py"),
+           "--model_type", "mel_band_roformer", "--config_path", r.get("config", ""),
+           "--start_check_point", str(weights / "mel_band_roformer_vocals.ckpt"),
+           "--input_folder", str(src.parent), "--store_dir", str(out_root)]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        return {"error": f"roformer вернул {proc.returncode}: {proc.stderr[-800:]}",
+                "cmd": cmd}
+    vocals = next((p for p in out_root.rglob("*vocals*.wav")), None)
+    if vocals is None:
+        return {"error": "roformer не выдал vocals-стем"}
+    return {"vocals": str(vocals), "engine": "roformer",
+            "note": "аккомпанемент = src - vocals; для СУММА++ использовать оба стема"}
+
+
+def run(cfg: Config, ledger: Ledger) -> dict:
+    src_dir = cfg.work / "src"
+    files = sorted(p for p in src_dir.glob("*")
+                   if p.suffix.lower() in {".wav", ".flac", ".mp3"})
+    if not files:
+        raise SystemExit("[2-МИНУС] нет src-файлов — сначала ШАГ 1")
+    primary = files[0]
+
+    out_root = cfg.work / "minus"
+    engine = cfg["minus"].get("engine", "auto")
+    res = None
+    tried = []
+
+    order = {"auto": ["roformer", "demucs"],
+             "roformer": ["roformer"],
+             "demucs": ["demucs"]}[engine]
+    for eng in order:
+        tried.append(eng)
+        res = (_run_roformer(cfg, primary, out_root / eng) if eng == "roformer"
+               else _run_demucs(cfg, primary, out_root / eng,
+                                cfg["minus"].get("demucs_model", "htdemucs")))
+        if "error" not in res:
+            ledger.log("2-МИНУС", f"движок {eng}", "OK",
+                       params={"engine": eng}, result=res)
+            break
+        ledger.log("2-МИНУС", f"движок {eng}", "FAIL",
+                   params={"engine": eng}, result={"error": res["error"]})
+    else:
+        raise SystemExit("[2-МИНУС] ни один движок не сработал")
+
+    # Контроль сборки (наследие 0.9992): vocals + accompaniment ≈ источник
+    vocals, sr_v = judges.load_audio(res["vocals"], sr=None, mono=True)
+    acc_path = res.get("accompaniment")
+    corr = None
+    if acc_path and Path(acc_path).exists():
+        acc, sr_a = judges.load_audio(acc_path, sr=sr_v, mono=True)
+        n = min(len(vocals), len(acc))
+        rebuilt = vocals[:n] + acc[:n]
+        src_wav, _ = judges.load_audio(primary, sr=sr_v, mono=True)
+        corr = judges.correlation(src_wav[:len(rebuilt)], rebuilt)
+    res["rebuild_correlation"] = round(corr, 6) if corr is not None else None
+
+    if corr is not None and corr < 0.99:
+        ledger.log("2-МИНУС", "контроль сборки", "WARN",
+                   result={"correlation": res["rebuild_correlation"],
+                           "порог": 0.99,
+                           "note": "сборка хуже порога — проверь нормализацию стемов"})
+
+    # Копия стемов в minus/ — канонические пути для следующих шагов
+    import shutil
+    can_vocals = cfg.work / "minus" / "vocals.wav"
+    can_accomp = cfg.work / "minus" / "accompaniment.wav"
+    shutil.copyfile(res["vocals"], can_vocals)
+    if acc_path and Path(acc_path).exists():
+        shutil.copyfile(acc_path, can_accomp)
+    res["canonical_vocals"] = str(can_vocals)
+    res["canonical_accompaniment"] = str(can_accomp) if acc_path else None
+
+    (cfg.work / "minus_report.json").write_text(
+        json.dumps({"tried": tried, **{k: v for k, v in res.items()}},
+                   ensure_ascii=False, indent=2), encoding="utf-8")
+    ledger.log("2-МИНУС", "контроль сборки", "OK",
+               result={"rebuild_correlation": res["rebuild_correlation"]})
+    return res

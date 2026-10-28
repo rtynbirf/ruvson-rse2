@@ -1,0 +1,72 @@
+# RSE-2 — пульт станции. Копируй в config.yaml и правь под песню.
+project: ruvson
+song: road_to_hell
+
+paths:
+  work: ./work            # всё рабочее живёт здесь (НЕ в /tmp — песочница перезапускается)
+
+# ШАГ 1 ЛОВИ: источник. Режим archive_item — качаем аудиофайлы с archive.org
+# и проверяем sha256. Режим files — прямые url + опциональные эталонные sha256.
+source:
+  archive_item: chris-rea-road-to-hell.-hq-other-instruments
+  formats: ["wav", "flac", "mp3"]
+  max_files: 5
+  # files:
+  #   - url: "https://example.org/a.wav"
+  #     sha256: "..."    # эталон, если известен
+
+# ШАГ 2 МИНУС
+minus:
+  engine: auto            # auto | roformer | demucs
+  demucs_model: htdemucs
+  roformer:
+    weights_dir: ./models/roformer   # наличие весов решает, кто главный
+    python: python                   # интерпретатор с MSST-окружением
+    entry: msst_infer.py             # точка входа MSST-совместимая
+    config: ./models/roformer/config_melband_vocals.yaml
+  sample_rate: 44100
+
+# ШАГ 3 ПАСПОРТ
+passport:
+  f0_engine: crepe        # судья один — CREPE
+  crepe:
+    periodicity_floor: 0.6
+    fmin: 50
+    fmax: 1100
+  octave_jump_cents: 700  # скок больше этого за кадр = артефакт, считаем
+
+# ШАГ 4 БИРКА — банк голоса RUVSON (единственный источник тембра)
+voice_bank:
+  name: ruvson_2026
+  refs: []                # пути к WAV живого вокала RUVSON, 44.1 кГц моно
+  # refs:
+  #   - /path/to/ruvson_take1.wav
+
+# ШАГ 5 СУММА
+sum:
+  engine: openvoice       # openvoice | seedvc | knnvc  (A/B/C контуры)
+  seedvc:
+    repo_dir: ./models/seed-vc        # клон репо, GPL-3, только CLI
+    python: python
+    checkpoint: null
+    config: null
+    sample_rate: 44100
+  openvoice:
+    tau: 0.3
+    converter_ckpt: ./models/openvoice/converter/checkpoint.pth
+    converter_config: ./models/openvoice/converter/converter_config.json
+  knnvc:
+    weights_dir: ./models/knnvc
+  compensation:
+    max_iters: 2
+    tolerance_cents: 20.0
+  mix:
+    peak_dbfs: -1.0        # предел пика при сборке СУММА++
+
+# ШАГ 6 СУД
+sud:
+  lufs_target: -14.0
+  lufs_tolerance: 1.0
+  max_clipping_ratio: 0.0
+  max_delta_cents: 20.0
+  min_sim: 0.74            # SECS-класс; при недоступном SIM-модели — warning, не FAIL

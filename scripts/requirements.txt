@@ -1,0 +1,15 @@
+# RSE-2 лёгкие зависимости (обязательно)
+# Тяжёлые модели (torch, demucs, torchcrepe, openvoice) ставятся по
+# 06_РЕЕСТР_ИНСТРУМЕНТОВ_ЛИЦЕНЗИИ.md — там проверенный порядок и грабли.
+numpy>=1.26
+scipy>=1.11
+soundfile>=0.12
+librosa>=0.10
+PyYAML>=6.0
+tqdm>=4.66
+# опционально, ставится отдельно:
+# pyloudnorm>=0.1.1        # точный LUFS; без него RMS-оценка с предупреждением
+# torch>=2.2               # CPU-сборка достаточна для CREPE
+# torchcrepe               # СТРОГО с --index-url https://download.pytorch.org/whl/cpu
+# demucs>=4.0              # МИНУС резервный движок
+# openvoice                # СУММА контур B
