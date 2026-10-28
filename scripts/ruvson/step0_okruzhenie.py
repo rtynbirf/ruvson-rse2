@@ -22,7 +22,17 @@ def run(cfg: Config, ledger: Ledger) -> dict:
         ledger.log("0-ОКРУЖЕНИЕ", "инвентаризация", "FAIL", result=res)
         raise SystemExit(f"[0-ОКРУЖЕНИЕ] {res['error']}")
 
-    primary = files[0]
+    # Профиль окружения строится от ПОЛНОГО МИКСА, не от стема:
+    # подсказка source.primary_hint (та же дисциплина, что в ШАГ 2 МИНУС).
+    # Коррекция 2026-10-28 (Ф-0, ревизия №2): без неё первоисточником
+    # становился первый по алфавиту стем (Bass) — LUFS/ключ/темпо врали.
+    hint = (cfg.get("source") or {}).get("primary_hint")
+    primary = next((p for p in files if hint and hint.lower() in p.name.lower()),
+                   files[0])
+    if hint and hint.lower() not in primary.name.lower():
+        ledger.log("0-ОКРУЖЕНИЕ", "первоисточник", "WARN",
+                   result={"note": "primary_hint не совпал ни с одним файлом — "
+                                   "профиль по первому файлу, задай подсказку!"})
     wav, sr = judges.load_audio(primary, sr=None, mono=True)
     lufs, lufs_backend = judges.measure_lufs(wav, sr)
     kt = judges.key_tempo(wav, sr)

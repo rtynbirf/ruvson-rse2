@@ -1,0 +1,50 @@
+{
+  "song": "road_to_hell",
+  "window_s": [
+    60,
+    120
+  ],
+  "reference": "archive.org item stems (Vocals/Bass/Drums/Other)",
+  "calibration_sum_stems_vs_mix": {
+    "corr": 0.9991,
+    "sdr_gain_db": 24.77,
+    "align_shift_samples": 0
+  },
+  "results": [
+    {
+      "engine": "roformer_melband",
+      "sep_time_s": null,
+      "vocals_vs_ref": {
+        "corr": 0.9341,
+        "sdr_gain_db": 8.91,
+        "align_shift_samples": 0
+      },
+      "leakage_drums_corr": 0.0313,
+      "accomp_vs_ref": {
+        "corr": 0.9894,
+        "sdr_gain_db": 16.58,
+        "align_shift_samples": 0
+      },
+      "rebuild_corr": 1.0,
+      "sibilance_ratio_est_vs_ref": 1.027
+    },
+    {
+      "engine": "demucs_htdemucs",
+      "sep_time_s": null,
+      "vocals_vs_ref": {
+        "corr": 0.9486,
+        "sdr_gain_db": 10.0,
+        "align_shift_samples": 0
+      },
+      "leakage_drums_corr": 0.0201,
+      "accomp_vs_ref": {
+        "corr": 0.9924,
+        "sdr_gain_db": 18.2,
+        "align_shift_samples": 0
+      },
+      "rebuild_corr": 0.9997,
+      "sibilance_ratio_est_vs_ref": 1.013
+    }
+  ],
+  "verdict": "смотри цифры"
+}

@@ -1,0 +1,23 @@
+{
+  "calibration_note": "стемы айтема - продукт чужого разделения (караоке-происхождение)",
+  "scores": {
+    "roformer_melband": {
+      "vocals_sdr_gain_db": 9.38,
+      "vocals_corr": 0.9415,
+      "accomp_sdr_gain_db": 18.67,
+      "accomp_corr": 0.9936,
+      "leakage_drums_corr": 0.0252,
+      "sibilance_ratio": 1.022,
+      "rebuild_corr": 1.0
+    },
+    "demucs_htdemucs": {
+      "vocals_sdr_gain_db": 19.94,
+      "vocals_corr": 0.9949,
+      "accomp_sdr_gain_db": 27.22,
+      "accomp_corr": 0.9991,
+      "leakage_drums_corr": 0.0287,
+      "sibilance_ratio": 1.011,
+      "rebuild_corr": 0.999706
+    }
+  }
+}

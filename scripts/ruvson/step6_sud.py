@@ -65,8 +65,20 @@ def run(cfg: Config, ledger: Ledger) -> dict:
     lufs, lufs_backend = judges.measure_lufs(wav, sr)
     cer = _cer_optional(cfg, out_vocals)
 
-    # SIM: если есть WeSpeaker/ECAPA-модель — считать; иначе предупреждение.
-    sim, sim_note = None, "SIM-модель не подключена (Ф-4); судим по Δцентам/петле"
+    # SIM-судья (ECAPA, тренд 5/24): refs = sud.sim.refs, иначе voice_bank.refs.
+    sim, sim_note = None, ""
+    sim_refs = list((s.get("sim") or {}).get("refs") or
+                    (cfg.get("voice_bank") or {}).get("refs") or [])
+    if sim_refs:
+        sim_res = judges.secs_sim(out_vocals, sim_refs)
+        if sim_res.get("status") == "measured":
+            sim = float(sim_res["sim_mean"])
+            sim_note = (f"ECAPA {sim_res['model']}; sim_min={sim_res['sim_min']}; "
+                        "порог калибруется в Ф-4 (ECAPA-косинус vs WavLM-SECS)")
+        else:
+            sim_note = f"SIM not_measured: {sim_res.get('reason')}"
+    else:
+        sim_note = "нет refs (sud.sim.refs / voice_bank.refs) — SIM не считаем"
 
     reasons = []
     if not np.isfinite(delta_cents) or abs(delta_cents) > float(s["max_delta_cents"]):
@@ -89,6 +101,7 @@ def run(cfg: Config, ledger: Ledger) -> dict:
         "delta_cents_median": round(delta_cents, 2) if np.isfinite(delta_cents) else None,
         "secs_sim": sim,
         "sim_note": sim_note,
+        "sim_refs_used": bool(sim_refs),
         "clipping_ratio": clip,
         "lufs": round(lufs, 2),
         "lufs_backend": lufs_backend,

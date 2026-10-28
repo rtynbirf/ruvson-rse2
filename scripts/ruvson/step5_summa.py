@@ -21,6 +21,16 @@ from .config import Config
 from .ledger import Ledger
 
 
+def load_audio_16k(path) -> tuple:
+    """WAV -> float32 mono @16k (soundfile + librosa), для контуров, которым
+    нужен тензор 16k (kNN-VC): торчаудио 2.11 требует torchcodec - обходим."""
+    import librosa
+    wav, sr = judges.load_audio(path, sr=None, mono=True)
+    if sr != 16000:
+        wav = librosa.resample(wav, orig_sr=sr, target_sr=16000)
+    return wav, 16000
+
+
 # ------------------------------ контур B: OpenVoice --------------------------
 
 def _convert_openvoice(cfg: Config):
@@ -114,9 +124,62 @@ def _convert_seedvc(cfg: Config):
 # ------------------------------ контур C: kNN-VC -----------------------------
 
 def _convert_knnvc(cfg: Config):
-    raise RuntimeError(
-        "контур kNN-VC подключается в Ф-3 (см. 02_дорожная карта); "
-        "стенд: github.com/bshall/knn-vc, веса в models/knnvc")
+    """Контур C: kNN-VC (MIT, arXiv 2305.18975) - retrieval без обучения.
+
+    Подключён Ф-0-ревизией №2 (аудит вектора, п.9/25): станок несёт
+    реальную реализацию через torch.hub локального клона bshall/knn-vc.
+    Веса: WavLM-Large (1.2 ГБ) + prematch HiFiGAN - сами приходят в
+    ~/.cache/torch/hub/checkpoints. Выход 16 кГц (класс контура C:
+    аварийный перенос тембра), ресемплим к рабочей частоте.
+    """
+    kc = cfg["sum"]["knnvc"]
+    repo = Path(kc.get("repo_dir", "./models/knn-vc"))
+    if not repo.exists():
+        raise RuntimeError(
+            "нет models/knn-vc - git clone https://github.com/bshall/knn-vc "
+            "(MIT); веса WavLM-Large.pt + prematch_g_02500000.pt качаются сами "
+            "в ~/.cache/torch/hub/checkpoints")
+    refs = [Path(p) for p in (cfg["voice_bank"].get("refs") or [])
+            if Path(p).exists()]
+    if not refs:
+        raise RuntimeError("БИРКА пуста: нет референсов для kNN-VC")
+    try:
+        import torch
+    except Exception as e:
+        raise RuntimeError(f"torch недоступен: {e}")
+    knnvc = torch.hub.load(str(repo), "knn_vc", source="local",
+                           prematched=True, device="cpu", progress=False)
+    topk = int(kc.get("topk", 4))
+    def _tensor16k(path) -> "torch.Tensor":
+        # ГРАБЛЯ torchaudio 2.11: load требует torchcodec - грузим через
+        # soundfile и ресемплим librosa'ой, knn-vc отдаём готовый тензор 16k.
+        import librosa
+        w16, _ = load_audio_16k(path)
+        return torch.from_numpy(np.ascontiguousarray(w16, dtype=np.float32))[None]
+
+    ref_feats = knnvc.get_matching_set([_tensor16k(r) for r in refs],
+                                       vad_trigger_level=7)
+
+    def convert(wav: np.ndarray, sr: int) -> np.ndarray:
+        import librosa
+        if sr != 16000:
+            w16 = librosa.resample(wav, orig_sr=sr, target_sr=16000)
+        else:
+            w16 = wav
+        feats = knnvc.get_features(
+            torch.from_numpy(np.ascontiguousarray(w16, dtype=np.float32))[None],
+            vad_trigger_level=0)
+        out = knnvc.match(feats, ref_feats, ref_feats, topk=topk,
+                          tgt_loudness_db=None, device="cpu")
+        out = out.squeeze().cpu().numpy().astype(np.float32)
+        if out.ndim > 1:
+            out = out.mean(axis=0)
+        out_sr = int(knnvc.sr)
+        if out_sr != sr:
+            out = librosa.resample(out, orig_sr=out_sr, target_sr=sr)
+        return out
+
+    return convert
 
 
 CONVERTERS = {"openvoice": _convert_openvoice,

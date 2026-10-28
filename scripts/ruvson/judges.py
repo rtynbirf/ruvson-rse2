@@ -62,7 +62,9 @@ def measure_lufs(wav: np.ndarray, sr: int) -> tuple[float, str]:
 
 def crepe_track(wav: np.ndarray, sr: int,
                 periodicity_floor: float = 0.6,
-                fmin: float = 50.0, fmax: float = 1100.0) -> dict:
+                fmin: float = 50.0, fmax: float = 1100.0,
+                model: str = "full", hop_length: int = 160,
+                batch_size: int = 512) -> dict:
     """Трек f0 через torchcrepe. periodicity < floor -> NaN.
 
     Возвращает {"times": [...], "hz": [...], "periodicity": [...]}.
@@ -84,11 +86,12 @@ def crepe_track(wav: np.ndarray, sr: int,
         sr = 16000
 
     audio = torch.from_numpy(np.ascontiguousarray(wav, dtype=np.float32))[None]
-    hop = 160  # 10 мс
+    # ёмкость CREPE - конфигурируемая (full - стандарт оффлайна, tiny/small -
+    # краевые машины; паспорт всегда пишет, каким мерилом снят)
     with torch.no_grad():
         f0, pd = torchcrepe.predict(
-            audio, sr, hop_length=hop, fmin=fmin, fmax=fmax,
-            model="full", batch_size=512, device="cpu",
+            audio, sr, hop_length=hop_length, fmin=fmin, fmax=fmax,
+            model=model, batch_size=batch_size, device="cpu",
             return_periodicity=True,
         )
         pd = torchcrepe.filter.median(pd, 3)
@@ -97,7 +100,7 @@ def crepe_track(wav: np.ndarray, sr: int,
     f0 = f0.squeeze(0).cpu().numpy()
     pd = pd.squeeze(0).cpu().numpy()
     f0[pd < periodicity_floor] = np.nan
-    times = np.arange(len(f0)) * hop / sr
+    times = np.arange(len(f0)) * hop_length / sr
     return {"times": times, "hz": f0, "periodicity": pd}
 
 
@@ -155,3 +158,69 @@ def key_tempo(wav: np.ndarray, sr: int) -> dict:
     onset = librosa.onset.onset_strength(y=wav, sr=sr)
     tempo = librosa.feature.tempo(onset_envelope=onset, sr=sr)
     return {"key_guess": best, "tempo_bpm": float(tempo[0]) if len(tempo) else float("nan")}
+
+
+def secs_sim(est_path, ref_paths: list, device: str = "cpu") -> dict:
+    """SIM-судья: ECAPA-TDNN (speechbrain/spkrec-ecapa-voxceleb), косинус.
+
+    Мир (аудит №1, тренд 5): порог SIM 0.74 - SECS-класс Seed-VC.
+    Оговорка прибора: ECAPA-косинус не равен WavLM-SECS дословно;
+    финальная калибровка порога - Ф-4 на банке RUVSON. Если модели нет -
+    честное not_measured, судим по Д центам/петле (не выдумка).
+    """
+    try:
+        import torch
+        from speechbrain.inference.speaker import EncoderClassifier
+    except Exception as e:
+        return {"status": "not_measured",
+                "reason": f"speechbrain/torchaudio не поставлены ({e})"}
+    refs = [Path(p) for p in ref_paths if Path(p).exists()]
+    if not refs:
+        return {"status": "not_measured", "reason": "нет файлов референсов"}
+    global _ECAPA
+    try:
+        if _ECAPA is None:
+            _ECAPA = EncoderClassifier.from_hparams(
+                source="speechbrain/spkrec-ecapa-voxceleb",
+                savedir=str(Path.home() / ".cache" / "ruvson-ecapa"),
+                run_opts={"device": device})
+    except Exception as e:
+        return {"status": "not_measured",
+                "reason": f"модель ECAPA не загрузилась: {str(e)[:180]}"}
+
+    def embed(path: Path):
+        # ГРАБЛЯ (приборно доказана 2026-10-28): ECAPA на длинном файле целиком
+        # = OOM kill (RC 137): свёртки держат карту T×C на ВСЕХ 4.4M кадров.
+        # Практика VoxCeleb: скользящее окно 10 с, шаг 5 с, средний эмбеддинг.
+        wav, sr = load_audio(path, sr=None, mono=True)
+        if sr != 16000:
+            import librosa
+            wav = librosa.resample(wav, orig_sr=sr, target_sr=16000)
+        win, hop, cap = 160000, 80000, 8  # 10 c / 5 c / <=45 c материала
+        starts = list(range(0, max(len(wav) - win, 1) + 1, hop))[:cap]
+        if not starts:
+            starts = [0]
+        embs = []
+        for s0 in starts:
+            t = torch.from_numpy(np.ascontiguousarray(
+                wav[s0:s0 + win], dtype=np.float32))[None]
+            with torch.no_grad():
+                embs.append(_ECAPA.encode_batch(t).squeeze(0).squeeze(0).numpy())
+        embs = np.stack(embs)
+        mean = embs.mean(axis=0)
+        return mean / (np.linalg.norm(mean) + 1e-12)
+
+    import numpy as _np
+    try:
+        e_est = embed(Path(est_path))
+        sims = [float(_np.dot(e_est, e_ref) /
+                      (_np.linalg.norm(e_est) * _np.linalg.norm(e_ref) + 1e-12))
+                for e_ref in (embed(r) for r in refs)]
+        return {"status": "measured", "model": "speechbrain/spkrec-ecapa-voxceleb",
+                "sim_mean": round(sum(sims) / len(sims), 4),
+                "sim_min": round(min(sims), 4), "n_refs": len(sims)}
+    except Exception as e:
+        return {"status": "not_measured", "reason": f"ошибка эмбеддинга: {str(e)[:180]}"}
+
+
+_ECAPA = None

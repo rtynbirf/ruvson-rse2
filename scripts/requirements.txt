@@ -13,3 +13,13 @@ tqdm>=4.66
 # torchcrepe               # СТРОГО с --index-url https://download.pytorch.org/whl/cpu
 # demucs>=4.0              # МИНУС резервный движок
 # openvoice                # СУММА контур B
+# ревизия №2: минимум для mel_band_roformer-пути MSST (06/6.4) и судей
+# omegaconf>=2.3
+# ml_collections>=0.1.1
+# loralib>=0.1.2
+# peft>=0.10
+# prodigyopt>=1.0
+# transformers>=4.40
+# resampy>=0.4               # импорт torchcrepe
+# speechbrain>=1.0           # SIM-судья ECAPA (torchaudio обязателен)
+# pyloudnorm>=0.1.1

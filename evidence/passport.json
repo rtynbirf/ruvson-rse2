@@ -1,0 +1,21 @@
+{
+  "source": "/home/z/my-project/work/rse2-run/work/road_to_hell/minus/vocals.wav",
+  "f0_engine": "torchcrepe/CREPE tiny",
+  "f0_summary": {
+    "median_hz": 211.231,
+    "range_semitones": 31.3,
+    "octave_jumps": 41
+  },
+  "lufs": -22.11,
+  "lufs_backend": "pyloudnorm",
+  "key_guess": "E minor",
+  "tempo_bpm": 135.99917763157896,
+  "crepe_params": {
+    "periodicity_floor": 0.6,
+    "fmin": 50,
+    "fmax": 1100,
+    "model": "tiny",
+    "hop_length": 320,
+    "batch_size": 1024
+  }
+}

@@ -28,6 +28,9 @@ def run(cfg: Config, ledger: Ledger) -> dict:
         periodicity_floor=crepe_cfg.get("periodicity_floor", 0.6),
         fmin=crepe_cfg.get("fmin", 50.0),
         fmax=crepe_cfg.get("fmax", 1100.0),
+        model=crepe_cfg.get("model", "full"),
+        hop_length=int(crepe_cfg.get("hop_length", 160)),
+        batch_size=int(crepe_cfg.get("batch_size", 512)),
     )
     jumps = judges.octave_jumps(track, crepe_cfg.get("octave_jump_cents", 700.0))
     lufs, lufs_backend = judges.measure_lufs(wav, sr)
@@ -35,7 +38,7 @@ def run(cfg: Config, ledger: Ledger) -> dict:
 
     passport = {
         "source": str(vocals),
-        "f0_engine": "torchcrepe/CREPE full",
+        "f0_engine": f"torchcrepe/CREPE {crepe_cfg.get('model', 'full')}",
         "f0_summary": {
             "median_hz": round(judges.median_hz(track), 3),
             "range_semitones": round(judges.range_semitones(track), 2),

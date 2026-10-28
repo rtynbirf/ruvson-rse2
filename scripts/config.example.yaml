@@ -60,7 +60,8 @@ sum:
     converter_ckpt: ./models/openvoice/converter/checkpoint.pth
     converter_config: ./models/openvoice/converter/converter_config.json
   knnvc:
-    weights_dir: ./models/knnvc
+    repo_dir: ./models/knn-vc   # клон github.com/bshall/knn-vc (MIT)
+    topk: 4                     # k в kNN-регрессии (статья: 4)
   compensation:
     max_iters: 2
     tolerance_cents: 20.0

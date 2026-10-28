@@ -1,0 +1,17 @@
+{
+  "primary_source": "/home/z/my-project/work/rse2-run/work/road_to_hell/src/Chris Rea Road To Hell.HQ.mp3",
+  "files_found": [
+    "Chris Rea Road To Hell.HQ-Bass.mp3",
+    "Chris Rea Road To Hell.HQ-Drums.mp3",
+    "Chris Rea Road To Hell.HQ-Other Instruments.mp3",
+    "Chris Rea Road To Hell.HQ-Vocals.mp3",
+    "Chris Rea Road To Hell.HQ.mp3"
+  ],
+  "sample_rate": 44100,
+  "channels": 1,
+  "duration_s": 273.02,
+  "lufs": -17.55,
+  "lufs_backend": "pyloudnorm",
+  "key_guess": "A minor",
+  "tempo_bpm": 136.0
+}
