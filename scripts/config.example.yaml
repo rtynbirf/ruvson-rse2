@@ -17,8 +17,11 @@ source:
 
 # ШАГ 2 МИНУС
 minus:
-  engine: auto            # auto | roformer | demucs
+  engine: auto            # auto | roformer | samaudio | demucs
   demucs_model: htdemucs
+  samaudio:               # тренд №4: разделение по тексту (стенд — Ф-RT+)
+    weights_dir: ./models/samaudio
+    prompt: "vocals"
   roformer:
     weights_dir: ./models/roformer   # наличие весов решает, кто главный
     python: python                   # интерпретатор с MSST-окружением
@@ -62,6 +65,7 @@ sum:
     tolerance_cents: 20.0
   mix:
     peak_dbfs: -1.0        # предел пика при сборке СУММА++
+    lufs_match: true       # аудит №1: голос подгоняется к нише (±2 dB), не наоборот
 
 # ШАГ 6 СУД
 sud:
@@ -70,3 +74,4 @@ sud:
   max_clipping_ratio: 0.0
   max_delta_cents: 20.0
   min_sim: 0.74            # SECS-класс; при недоступном SIM-модели — warning, не FAIL
+  max_cer_percent: 20.0    # по лирике work/lyrics.txt (faster-whisper); для TTS — 1.5

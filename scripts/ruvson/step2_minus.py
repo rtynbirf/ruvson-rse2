@@ -37,6 +37,21 @@ def _run_demucs(cfg: Config, src: Path, out_root: Path, model: str) -> dict:
     return {"vocals": str(vocals), "accompaniment": str(accomp), "engine": "demucs"}
 
 
+def _run_samaudio(cfg: Config, src: Path, out_root: Path) -> dict:
+    """SAM-Audio (Meta): разделение по текстовой подсказке — тренд №4.
+
+    Стенд не подключён — честный отказ, станок не молчит. Точка входа
+    зарезервирована: models/samaudio, prompt из config minus.samaudio.prompt.
+    """
+    sa = (cfg["minus"].get("samaudio") or {})
+    weights = Path(sa.get("weights_dir", "./models/samaudio"))
+    if not weights.exists() or not any(weights.glob("*")):
+        return {"error": "SAM-Audio стенд не подключён (models/samaudio пуст). "
+                         "Разрыв №4 аудита №1: мир разделяет по тексту; включаем "
+                         "после выхода весов, сейчас честный откат на roformer/demucs"}
+    return {"error": "SAM-Audio веса найдены, но точка входа ещё не написана — см. 02 Ф-RT"}
+
+
 def _run_roformer(cfg: Config, src: Path, out_root: Path) -> dict:
     r = cfg["minus"]["roformer"]
     weights = Path(r.get("weights_dir", ""))
@@ -73,12 +88,17 @@ def run(cfg: Config, ledger: Ledger) -> dict:
 
     order = {"auto": ["roformer", "demucs"],
              "roformer": ["roformer"],
+             "samaudio": ["samaudio", "roformer", "demucs"],
              "demucs": ["demucs"]}[engine]
     for eng in order:
         tried.append(eng)
-        res = (_run_roformer(cfg, primary, out_root / eng) if eng == "roformer"
-               else _run_demucs(cfg, primary, out_root / eng,
-                                cfg["minus"].get("demucs_model", "htdemucs")))
+        if eng == "roformer":
+            res = _run_roformer(cfg, primary, out_root / eng)
+        elif eng == "samaudio":
+            res = _run_samaudio(cfg, primary, out_root / eng)
+        else:
+            res = _run_demucs(cfg, primary, out_root / eng,
+                              cfg["minus"].get("demucs_model", "htdemucs"))
         if "error" not in res:
             ledger.log("2-МИНУС", f"движок {eng}", "OK",
                        params={"engine": eng}, result=res)

@@ -15,6 +15,37 @@ from .config import Config
 from .ledger import Ledger
 
 
+def _cer_optional(cfg: Config, wav_path: Path) -> dict:
+    """CER-судья по лирике: work/lyrics.txt (этикет) vs faster-whisper-транскрипт.
+
+    Разрыв №27-линия аудита: судим разборчивость. Если лирики нет или
+    faster-whisper не поставлен — честное 'not_measured', не выдумка.
+    """
+    lyrics = cfg.work / "lyrics.txt"
+    if not lyrics.exists():
+        return {"status": "not_measured", "reason": "нет work/lyrics.txt"}
+    try:
+        from faster_whisper import WhisperModel
+    except Exception as e:
+        return {"status": "not_measured",
+                "reason": f"faster-whisper не поставлен ({e}) — см. 06/6.1"}
+    try:
+        model = WhisperModel("small", device="cpu", compute_type="int8")
+        segments, _ = model.transcribe(str(wav_path), language=None)
+        hyp = " ".join(s.text.strip() for s in segments)
+        ref = lyrics.read_text(encoding="utf-8").strip()
+        import re
+        ref_c = re.sub(r"\s+", "", ref.lower())
+        hyp_c = re.sub(r"\s+", "", hyp.lower())
+        import difflib
+        ratio = difflib.SequenceMatcher(None, ref_c, hyp_c).ratio()
+        cer = round((1.0 - ratio) * 100.0, 2)
+        return {"status": "measured", "cer_percent": cer,
+                "transcript_preview": hyp[:180]}
+    except Exception as e:
+        return {"status": "not_measured", "reason": str(e)[:200]}
+
+
 def run(cfg: Config, ledger: Ledger) -> dict:
     s = cfg["sud"]
     out_vocals = cfg.work / "sum" / "vocals_ruvson.wav"
@@ -32,6 +63,7 @@ def run(cfg: Config, ledger: Ledger) -> dict:
     delta_cents = judges.drift_cents(passport_track, track)
     clip = judges.clipping_ratio(wav)
     lufs, lufs_backend = judges.measure_lufs(wav, sr)
+    cer = _cer_optional(cfg, out_vocals)
 
     # SIM: если есть WeSpeaker/ECAPA-модель — считать; иначе предупреждение.
     sim, sim_note = None, "SIM-модель не подключена (Ф-4); судим по Δцентам/петле"
@@ -48,6 +80,9 @@ def run(cfg: Config, ledger: Ledger) -> dict:
                        f"на {lufs_dev:.1f} dB")
     if sim is not None and sim < float(s["min_sim"]):
         reasons.append(f"SIM {sim:.3f} < {s['min_sim']}")
+    if cer.get("status") == "measured" and float(cer["cer_percent"]) > float(
+            s.get("max_cer_percent", 20.0)):
+        reasons.append(f"CER {cer['cer_percent']}% > {s.get('max_cer_percent')}")
 
     verdict = "PASS" if not reasons else "FAIL"
     report = {
@@ -57,6 +92,7 @@ def run(cfg: Config, ledger: Ledger) -> dict:
         "clipping_ratio": clip,
         "lufs": round(lufs, 2),
         "lufs_backend": lufs_backend,
+        "cer": cer,
         "thresholds": {k: s[k] for k in ("lufs_target", "lufs_tolerance",
                                          "max_clipping_ratio", "max_delta_cents",
                                          "min_sim")},

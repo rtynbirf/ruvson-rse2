@@ -168,8 +168,23 @@ def run(cfg: Config, ledger: Ledger) -> dict:
     mix_path = cfg.work / "sum" / "mix.wav"
     if acc_path.exists():
         acc, sr_a = judges.load_audio(acc_path, sr=sr, mono=True)
+        # LUFS-match (аудит №1, коррекция 4): голос подгоняется к нише,
+        # не наоборот. Практика пост-цепи каверов: ±2 dB.
+        match = bool(cfg["sum"]["mix"].get("lufs_match", True))
         n = min(len(converted), len(acc))
-        mix = converted[:n] + acc[:n]
+        voc_mix = converted[:n]
+        acc_mix = acc[:n]
+        if match:
+            lufs_v, _ = judges.measure_lufs(voc_mix, sr)
+            lufs_a, _ = judges.measure_lufs(acc_mix, sr)
+            if np.isfinite(lufs_v) and np.isfinite(lufs_a):
+                gain_db = float(np.clip(lufs_a - lufs_v, -12.0, 12.0))
+                voc_mix = voc_mix * (10 ** (gain_db / 20))
+                ledger.log("5-СУММА", "LUFS-match голоса к нише", "OK",
+                           result={"gain_db": round(gain_db, 2),
+                                   "lufs_vocals": round(lufs_v, 2),
+                                   "lufs_accomp": round(lufs_a, 2)})
+        mix = voc_mix + acc_mix
         peak = float(np.max(np.abs(mix))) if len(mix) else 0.0
         limit = 10 ** (float(cfg["sum"]["mix"].get("peak_dbfs", -1.0)) / 20)
         if peak > limit:
