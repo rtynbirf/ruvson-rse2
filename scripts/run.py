@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from ruvson.config import load            # noqa: E402
 from ruvson.ledger import Ledger          # noqa: E402
 from ruvson import step0_okruzhenie, step1_lovi, step2_minus, step3_pasport, \
-    step4_birka, step5_summa, step6_sud  # noqa: E402
+    step4_birka, step5_summa, step6_sud, watermark  # noqa: E402
 
 STEPS = {
     "0": ("0-ОКРУЖЕНИЕ", step0_okruzhenie),
@@ -27,6 +27,7 @@ STEPS = {
     "4": ("4-БИРКА", step4_birka),
     "5": ("5-СУММА", step5_summa),
     "6": ("6-СУД", step6_sud),
+    "6.5": ("6.5-ЗНАК", watermark),
 }
 
 
@@ -39,6 +40,7 @@ def plan(cfg) -> None:
     print("  4 БИРКА      -> birka/<bank>/bank.json (референсы RUVSON)")
     print("  5 СУММА      -> vocals_ruvson + mix (openvoice|seedvc|knnvc + петля)")
     print("  6 СУД        -> judge_report.json (PASS/FAIL)")
+    print("  6.5 ЗНАК     -> watermark.json + *_wm.wav (AudioSeal, если включён)")
     print(f"\nРабочая директория: {cfg.work}")
     print(f"Леджер: {cfg.work / 'ledger.jsonl'}")
 
@@ -63,7 +65,7 @@ def main() -> None:
     for key in order:
         if key not in STEPS:
             raise SystemExit(f"[RUN] неизвестный шаг: {key} "
-                             f"(доступны 0..6, all, plan)")
+                             f"(доступны 0..6, 6.5, all, plan)")
         name, mod = STEPS[key]
         print(f"\n=== {name} ===")
         mod.run(cfg, ledger)

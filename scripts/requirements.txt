@@ -23,3 +23,5 @@ tqdm>=4.66
 # resampy>=0.4               # импорт torchcrepe
 # speechbrain>=1.0           # SIM-судья ECAPA (torchaudio обязателен)
 # pyloudnorm>=0.1.1
+# ревизия №3: водяной знак релизов (06/6.7) — AudioSeal MIT (код и веса)
+# audioseal>=0.2             # pip install audioseal; тянет torch — ставь CPU-сборку первой

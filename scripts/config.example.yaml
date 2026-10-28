@@ -77,3 +77,12 @@ sud:
   max_delta_cents: 20.0
   min_sim: 0.74            # SECS-класс; при недоступном SIM-модели — warning, не FAIL
   max_cer_percent: 20.0    # по лирике work/lyrics.txt (faster-whisper); для TTS — 1.5
+
+# ШАГ 6.5 ЗНАК: водяной знак релизных волн (AudioSeal, MIT — тренд №27/35)
+# Включай ТОЛЬКО для релиза: чистые эксперименты гоняются с enabled: false.
+release:
+  watermark:
+    enabled: false
+    sample_rate: 16000
+    message_hex: "5253"    # 16 бит (4 hex) — "RS" (RUVSON Singularity)
+    # files: []            # явно перечисленные волны; иначе sum/mix.wav -> vocals_ruvson.wav

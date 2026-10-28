@@ -1,0 +1,15 @@
+# Смоук Шага 6.5 (ревизия №3): AudioSeal на синтетической волне.
+# Не трогает основную работу: отдельная рабочая директория.
+project: ruvson
+song: wm_smoke
+
+paths:
+  work: ./work_smoke
+
+release:
+  watermark:
+    enabled: true
+    sample_rate: 16000
+    message_hex: "5253"
+    files:
+      - ./work_smoke/test_tone.wav

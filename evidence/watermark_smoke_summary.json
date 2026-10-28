@@ -1,0 +1,34 @@
+{
+  "model": "audioseal_wm_16bits",
+  "license": "MIT (код и веса)",
+  "items": [
+    {
+      "engine": "audioseal (MIT, facebookresearch)",
+      "source": "test_tone.wav",
+      "output": "test_tone_wm.wav",
+      "sample_rate": 16000,
+      "message_hex": "5253",
+      "det_score_watermarked": 1.0,
+      "det_score_clean": 0.0,
+      "message_decoded": [
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1
+      ],
+      "threshold_pass": true
+    }
+  ]
+}
