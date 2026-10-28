@@ -21,20 +21,53 @@ from .config import Config
 from .ledger import Ledger
 
 
+def _decode_to_wav(src: Path, out_wav: Path, sr: int) -> dict:
+    """Принудительный ffmpeg-преддекод в WAV.
+
+    ГРАБЛЯ (приборно доказана 2026-10-28): demucs 4.1 грузит аудио через
+    sphn.read (Rust-декодер), и на этом mp3 он выдаёт мусор (corr 0.0026
+    с ffmpeg-эталоном) — разделение получает не песню. Поэтому станок
+    декодирует САМ, детерминированным декодером, и отдаёт demucs WAV.
+    """
+    import shutil as _sh
+    if not _sh.which("ffmpeg"):
+        return {"error": "ffmpeg не найден в PATH — обязателен для декод-контроля"}
+    proc = subprocess.run(
+        ["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
+         "-ac", "2", "-ar", str(sr), str(out_wav)],
+        capture_output=True, text=True)
+    if proc.returncode != 0:
+        return {"error": f"ffmpeg упал: {proc.stderr[-300:]}"}
+    import soundfile as sf
+    import numpy as _np
+    wav, _sr = sf.read(out_wav, dtype="float32", always_2d=False)
+    rms = float(_np.sqrt((wav ** 2).mean()))
+    if rms < 1e-4:
+        return {"error": f"декод-контроль: WAV почти пуст (rms={rms:.6f})"}
+    return {"wav": str(out_wav), "rms": round(rms, 5),
+            "note": "декод-контроль пройден"}
+
+
 def _run_demucs(cfg: Config, src: Path, out_root: Path, model: str) -> dict:
     out_root.mkdir(parents=True, exist_ok=True)
+    decoded = _decode_to_wav(src, out_root / "_decoded_input.wav",
+                             int(cfg["minus"].get("sample_rate", 44100)))
+    if "error" in decoded:
+        return decoded
+    feed = Path(decoded["wav"])
     cmd = [sys.executable, "-m", "demucs", "--two-stems", "vocals",
-           "-n", model, "-o", str(out_root), str(src)]
+           "-n", model, "-o", str(out_root), str(feed)]
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
         return {"error": f"demucs вернул {proc.returncode}: {proc.stderr[-800:]}",
                 "cmd": cmd}
-    song_dir = out_root / model / src.stem
+    song_dir = out_root / model / feed.stem
     vocals = song_dir / "vocals.wav"
     accomp = song_dir / "no_vocals.wav"
     if not vocals.exists():
         return {"error": f"нет {vocals} после demucs", "cmd": cmd}
-    return {"vocals": str(vocals), "accompaniment": str(accomp), "engine": "demucs"}
+    return {"vocals": str(vocals), "accompaniment": str(accomp),
+            "engine": "demucs", "decode": decoded["note"]}
 
 
 def _run_samaudio(cfg: Config, src: Path, out_root: Path) -> dict:
@@ -79,7 +112,15 @@ def run(cfg: Config, ledger: Ledger) -> dict:
                    if p.suffix.lower() in {".wav", ".flac", ".mp3"})
     if not files:
         raise SystemExit("[2-МИНУС] нет src-файлов — сначала ШАГ 1")
-    primary = files[0]
+    # Первоисточник = ПОЛНЫЙ МИКС. Подсказка из config.source.primary_hint
+    # защищает от выбора стема (Bass/Drums/Vocals) как входа разделения.
+    hint = (cfg.get("source") or {}).get("primary_hint")
+    primary = next((p for p in files if hint and hint.lower() in p.name.lower()),
+                   files[0])
+    ledger.log("2-МИНУС", "первоисточник", "OK",
+               result={"primary": primary.name,
+                       "note": "полный микс, не стем" if hint else
+                               "по умолчанию первый файл — задай source.primary_hint!"})
 
     out_root = cfg.work / "minus"
     engine = cfg["minus"].get("engine", "auto")

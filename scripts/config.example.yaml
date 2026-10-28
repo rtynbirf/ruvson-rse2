@@ -11,6 +11,7 @@ source:
   archive_item: chris-rea-road-to-hell.-hq-other-instruments
   formats: ["wav", "flac", "mp3"]
   max_files: 5
+  primary_hint: "HQ.mp3"   # полный микс; стемы Bass/Drums/Vocals — эталоны для A/B
   # files:
   #   - url: "https://example.org/a.wav"
   #     sha256: "..."    # эталон, если известен
