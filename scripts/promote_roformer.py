@@ -21,7 +21,7 @@ from ruvson import judges                    # noqa: E402
 from ruvson.ledger import Ledger             # noqa: E402
 from ab_roformer_vs_demucs import fit_and_score, band_rms  # noqa: E402
 
-WORK = Path("/home/z/my-project/work/rse2-run/work/road_to_hell")
+WORK = Path("~/work/rse2-run/work/road_to_hell").expanduser()
 SEG = WORK / "abtest" / "seg_out"
 SRC = WORK / "src"
 

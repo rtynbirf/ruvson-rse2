@@ -28,12 +28,12 @@ sys.path.insert(0, str(Path(__file__).parent))
 from ruvson import judges          # noqa: E402
 from ruvson.ledger import Ledger   # noqa: E402
 
-WORK = Path("/home/z/my-project/work/rse2-run/work/road_to_hell")
+WORK = Path("~/work/rse2-run/work/road_to_hell").expanduser()
 SRC = WORK / "src"
 AB = WORK / "abtest"
-MSST = Path("/home/z/my-project/work/rse2-run/models/msst/inference.py")
-CKPT = Path("/home/z/my-project/work/rse2-run/models/roformer/mel_band_roformer_vocals.ckpt")
-CFGKJ = Path("/home/z/my-project/work/rse2-run/models/msst/configs/KimberleyJensen/config_vocals_mel_band_roformer_kj.yaml")
+MSST = Path("~/work/rse2-run/models/msst/inference.py").expanduser()
+CKPT = Path("~/work/rse2-run/models/roformer/mel_band_roformer_vocals.ckpt").expanduser()
+CFGKJ = Path("~/work/rse2-run/models/msst/configs/KimberleyJensen/config_vocals_mel_band_roformer_kj.yaml").expanduser()
 
 SS, T = "60", "60"  # окно выдержки
 MIX = SRC / "Chris Rea Road To Hell.HQ.mp3"
