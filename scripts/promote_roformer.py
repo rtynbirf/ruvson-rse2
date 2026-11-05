@@ -21,7 +21,7 @@ from ruvson import judges                    # noqa: E402
 from ruvson.ledger import Ledger             # noqa: E402
 from ab_roformer_vs_demucs import fit_and_score, band_rms  # noqa: E402
 
-WORK = Path("~/work/rse2-run/work/road_to_hell").expanduser()
+WORK = Path("~/work/rse2-run/work/track_a").expanduser()
 SEG = WORK / "abtest" / "seg_out"
 SRC = WORK / "src"
 
@@ -60,10 +60,10 @@ def main() -> None:
 
     # 2) полный A/B против эталонных стемов айтема (вся песня)
     refs = {}
-    for key, fname in (("vocals", "Chris Rea Road To Hell.HQ-Vocals.mp3"),
-                       ("bass", "Chris Rea Road To Hell.HQ-Bass.mp3"),
-                       ("drums", "Chris Rea Road To Hell.HQ-Drums.mp3"),
-                       ("other", "Chris Rea Road To Hell.HQ-Other Instruments.mp3")):
+    for key, fname in (("vocals", "track_a.HQ-Vocals.mp3"),
+                       ("bass", "track_a.HQ-Bass.mp3"),
+                       ("drums", "track_a.HQ-Drums.mp3"),
+                       ("other", "track_a.HQ-Other Instruments.mp3")):
         p = SRC / fname
         w, s = judges.load_audio(p, sr=sr, mono=True)
         refs[key] = w[:n]
@@ -78,7 +78,7 @@ def main() -> None:
                                  else WORK / "minus" / "demucs" / "htdemucs" /
                                  "_decoded_input" / "no_vocals.wav", sr=sr, mono=True)
     dm = min(len(dem_v), len(dem_a), n)
-    mix_full, _ = judges.load_audio(SRC / "Chris Rea Road To Hell.HQ.mp3",
+    mix_full, _ = judges.load_audio(SRC / "track_a.HQ.mp3",
                                     sr=sr, mono=True)
     mm = min(len(mix_full), n, dm)
 

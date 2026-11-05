@@ -1,11 +1,11 @@
 {
-  "primary_source": "~/work/rse2-run/work/road_to_hell/src/Chris Rea Road To Hell.HQ.mp3",
+  "primary_source": "~/work/rse2-run/work/track_a/src/track_a.HQ.mp3",
   "files_found": [
-    "Chris Rea Road To Hell.HQ-Bass.mp3",
-    "Chris Rea Road To Hell.HQ-Drums.mp3",
-    "Chris Rea Road To Hell.HQ-Other Instruments.mp3",
-    "Chris Rea Road To Hell.HQ-Vocals.mp3",
-    "Chris Rea Road To Hell.HQ.mp3"
+    "track_a.HQ-Bass.mp3",
+    "track_a.HQ-Drums.mp3",
+    "track_a.HQ-Other Instruments.mp3",
+    "track_a.HQ-Vocals.mp3",
+    "track_a.HQ.mp3"
   ],
   "sample_rate": 44100,
   "channels": 1,

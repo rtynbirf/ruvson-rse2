@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Прибор Ф-0: A/B Mel-Band RoFormer vs HTDemucs на выдержке 60-120 с
-"Road to Hell" с эталонными стемами айтема archive.org.
+"track_a" с эталонными стемами айтема archive.org.
 
 Что меряет по каждому движку (все цифры честные, без mira_eval):
   corr_vocals  - корреляция нашего вокала с эталонным стемом Vocals
@@ -28,7 +28,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from ruvson import judges          # noqa: E402
 from ruvson.ledger import Ledger   # noqa: E402
 
-WORK = Path("~/work/rse2-run/work/road_to_hell").expanduser()
+WORK = Path("~/work/rse2-run/work/track_a").expanduser()
 SRC = WORK / "src"
 AB = WORK / "abtest"
 MSST = Path("~/work/rse2-run/models/msst/inference.py").expanduser()
@@ -36,11 +36,11 @@ CKPT = Path("~/work/rse2-run/models/roformer/mel_band_roformer_vocals.ckpt").exp
 CFGKJ = Path("~/work/rse2-run/models/msst/configs/KimberleyJensen/config_vocals_mel_band_roformer_kj.yaml").expanduser()
 
 SS, T = "60", "60"  # окно выдержки
-MIX = SRC / "Chris Rea Road To Hell.HQ.mp3"
-VOC = SRC / "Chris Rea Road To Hell.HQ-Vocals.mp3"
-BAS = SRC / "Chris Rea Road To Hell.HQ-Bass.mp3"
-DRU = SRC / "Chris Rea Road To Hell.HQ-Drums.mp3"
-OTH = SRC / "Chris Rea Road To Hell.HQ-Other Instruments.mp3"
+MIX = SRC / "track_a.HQ.mp3"
+VOC = SRC / "track_a.HQ-Vocals.mp3"
+BAS = SRC / "track_a.HQ-Bass.mp3"
+DRU = SRC / "track_a.HQ-Drums.mp3"
+OTH = SRC / "track_a.HQ-Other Instruments.mp3"
 
 
 def cut(src: Path, dst: Path) -> None:
@@ -217,7 +217,7 @@ def main() -> None:
     results.append(score("demucs_htdemucs", r_dm, ref_voc, ref_acc,
                          rd, ref_mix, sr))
 
-    report = {"song": "road_to_hell", "window_s": [int(SS), int(SS) + int(T)],
+    report = {"song": "track_a", "window_s": [int(SS), int(SS) + int(T)],
               "reference": "archive.org item stems (Vocals/Bass/Drums/Other)",
               "calibration_sum_stems_vs_mix": cal,
               "results": results,

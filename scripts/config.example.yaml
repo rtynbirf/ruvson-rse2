@@ -1,6 +1,6 @@
 # RSE-2 — пульт станции. Копируй в config.yaml и правь под песню.
 project: ruvson
-song: road_to_hell
+song: track_a
 
 paths:
   work: ./work            # всё рабочее живёт здесь (НЕ в /tmp — песочница перезапускается)
@@ -8,7 +8,7 @@ paths:
 # ШАГ 1 ЛОВИ: источник. Режим archive_item — качаем аудиофайлы с archive.org
 # и проверяем sha256. Режим files — прямые url + опциональные эталонные sha256.
 source:
-  archive_item: chris-rea-road-to-hell.-hq-other-instruments
+  archive_item: anonymized-item
   formats: ["wav", "flac", "mp3"]
   max_files: 5
   primary_hint: "HQ.mp3"   # полный микс; стемы Bass/Drums/Vocals — эталоны для A/B
