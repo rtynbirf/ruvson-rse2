@@ -1,0 +1,19 @@
+# Секреты — вне git-слежки (доктрина аккаунта, раздел 03)
+.env
+.env.*
+scripts/.tok*
+*.pem
+*.key
+
+# Мусор ОС и редакторов
+Thumbs.db
+Desktop.ini
+.DS_Store
+~$*
+*.tmp
+*.log
+
+# Типовые артефакты сборки
+__pycache__/
+*.pyc
+node_modules/
