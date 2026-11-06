@@ -153,7 +153,6 @@ def _convert_knnvc(cfg: Config):
     def _tensor16k(path) -> "torch.Tensor":
         # ГРАБЛЯ torchaudio 2.11: load требует torchcodec - грузим через
         # soundfile и ресемплим librosa'ой, knn-vc отдаём готовый тензор 16k.
-        import librosa
         w16, _ = load_audio_16k(path)
         return torch.from_numpy(np.ascontiguousarray(w16, dtype=np.float32))[None]
 

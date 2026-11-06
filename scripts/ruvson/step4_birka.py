@@ -8,6 +8,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
+
 from . import judges
 from .config import Config
 from .ledger import Ledger
