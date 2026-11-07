@@ -1,5 +1,8 @@
 # RUVSON SINGULARITY ENGINE v2 (RSE-2)
 
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE) [![Pipeline](https://img.shields.io/badge/steps-0%E2%86%926%20master-blue)](./04_%D0%90%D0%A0%D0%A5%D0%98%D0%A2%D0%95%D0%9A%D0%A2%D0%A3%D0%A0%D0%90_%D0%A8%D0%90%D0%930-6.md) [![Trends](https://img.shields.io/badge/trends-2023%E2%86%922026-green)](./03_%D0%A2%D0%A0%D0%95%D0%9D%D0%94%D0%AB_%D0%9F%D0%95%D0%A0%D0%92%D0%9E%D0%98%D0%A1%D0%A2%D0%9E%D0%A7%D0%9D%D0%98%D0%9A%D0%98.md) [![Voice](https://img.shields.io/badge/voice-RUVSON-red)](./00_%D0%93%D0%9B%D0%90%D0%92%D0%9D%D0%90%D0%AF.md)
+
 Станок одной песни: шаги 0–6 — от минуса до мастера. Голос RUVSON.
 Конвейер на мировых трендах 2023–2026 (Mel-Band RoFormer, Seed-VC,
 OpenVoice+петля, kNN-VC, CREPE-судья).
