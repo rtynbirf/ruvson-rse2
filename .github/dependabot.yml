@@ -1,6 +1,5 @@
 # П-19/T20 канон роя: еженедельно, группы, лимиты; экосистемы по телу репо
 version: 2
-updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -9,8 +8,9 @@ updates:
       github-actions:
         patterns: ["*"]
     open-pull-requests-limit: 5
+
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/scripts/"
     schedule:
       interval: "weekly"
     groups:
