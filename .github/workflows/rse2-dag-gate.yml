@@ -1,0 +1,22 @@
+name: rse2-dag-gate
+# Волна ×3 · W3-E · Гейт DAG-станка RSE-2 (предложение ruvson-rse2#1).
+# Самотест чекпоинтов/resume (SKIP по sha256, пересчёт ровно испорченного хвоста)
+# и CI-гейт золотых проб: красный при дрейфе версии модели или sha256 артефактов.
+# Тяжёлые модели на раннере не запускаются — проверяется логика DAG, а не вокодер.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Самотест DAG (падение шага 4, подмена шага 2, подмена версии модели)
+        run: python3 scripts/rse2.py selftest
+
+      - name: Гейт золотых проб (зелёный, пока эталоны не заполнены оператором)
+        run: python3 scripts/rse2.py goldens
