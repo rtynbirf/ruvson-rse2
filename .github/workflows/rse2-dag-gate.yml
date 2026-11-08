@@ -13,7 +13,7 @@ jobs:
   dag:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Самотест DAG (падение шага 4, подмена шага 2, подмена версии модели)
         run: python3 scripts/rse2.py selftest
