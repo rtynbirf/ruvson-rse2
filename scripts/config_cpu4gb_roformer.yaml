@@ -15,7 +15,7 @@ model:
   multi_stft_hop_size: 147
   multi_stft_normalized: false
   multi_stft_resolution_loss_weight: 1.0
-  multi_stft_resolutions_window_sizes: !!python/tuple [4096, 2048, 1024, 512, 256]
+  multi_stft_resolutions_window_sizes: [4096, 2048, 1024, 512, 256]
   num_bands: 60
   num_stems: 1
   sample_rate: 44100
