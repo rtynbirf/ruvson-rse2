@@ -1,0 +1,37 @@
+# ruvson-rse2
+> RUVSON SINGULARITY ENGINE v2 (RSE-2): станок одной песни Шаг 0-6 на мировых трендах 2023-2026 (Mel-Band RoFormer, Seed-VC, OpenVoice+петля, kNN-VC, CREPE-судья). Голос RUVSON.
+
+Автоген 2026-11-08 · источник: живой GitHub API (номера и файлы не руками) · владелец rtynbirf · ветка `main`
+
+## Мембрана
+- README.md — для человека (RUVSON SINGULARITY ENGINE v2 (RSE-2))
+- AGENTS.md — есть
+- LICENSE — MIT
+- topics: audio-processing, audio-watermarking, demucs, karaoke, lufs, music, pipeline, python, ruvson
+
+## Карта корня
+- .github/
+- .gitignore
+- 00_ГЛАВНАЯ.md
+- 01_ТЗ_ТЕХНИЧЕСКОЕ_ЗАДАНИЕ.md
+- 02_ДОРОЖНАЯ_КАРТА.md
+- 03_ТРЕНДЫ_ПЕРВОИСТОЧНИКИ.md
+- 04_АРХИТЕКТУРА_ШАГ0-6.md
+- 05_ПРИЁМКА_БЕНЧМАРКИ.md
+- 06_РЕЕСТР_ИНСТРУМЕНТОВ_ЛИЦЕНЗИИ.md
+- 07_АУДИТ_ВЕКТОРА.md
+- 08_ЭМЕРДЖЕНТНОСТЬ.md
+- 09_Ф0_ПРИЁМКА_РЕВИЗИЯ2.md
+- 10_ТРЕНДЫ_ПРИЛИВ_3.md
+- 11_СВЕРКА_ТРЕНДОВ.md
+- AGENTS.md
+- … ещё 10
+
+## CI
+- workflow: ci
+- workflow: self-audit
+
+## Ссылки
+- [GitHub](https://github.com/rtynbirf/ruvson-rse2)
+- [README](https://github.com/rtynbirf/ruvson-rse2/blob/main/README.md)
+- [raw llms.txt](https://raw.githubusercontent.com/rtynbirf/ruvson-rse2/main/llms.txt)
