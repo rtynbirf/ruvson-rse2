@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="banner.png" alt="ruvson-rse2 — Станок одной песни — движок сингулярности v2" width="100%">
+</div>
+
 # RUVSON SINGULARITY ENGINE v2 (RSE-2)
 
 <p align="center"><img src=".github/social-preview.png" alt="ruvson-rse2" width="100%"></p>
