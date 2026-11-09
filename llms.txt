@@ -35,3 +35,4 @@
 - [GitHub](https://github.com/rtynbirf/ruvson-rse2)
 - [README](https://github.com/rtynbirf/ruvson-rse2/blob/main/README.md)
 - [raw llms.txt](https://raw.githubusercontent.com/rtynbirf/ruvson-rse2/main/llms.txt)
+- [PULSE.md](PULSE.md): живой пульс репозитория — прогоны, пломбы, здоровье.
