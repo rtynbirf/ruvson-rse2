@@ -2,6 +2,15 @@
   <img src="banner.png" alt="ruvson-rse2 — Станок одной песни — движок сингулярности v2" width="100%">
 </div>
 
+<!--ФОРЖ:МУЗА:НАЧАЛО-->
+<div align="center">
+  <img src="repo-muse.svg" width="100%" alt="Муза ruvson-rse2: картина кузни ПОЛИМАТ, раунд 9" />
+  <br/>
+  <img src="forge-divider.svg" width="62%" alt="разделитель кузни ПОЛИМАТ" />
+</div>
+<!--ФОРЖ:МУЗА:КОНЕЦ-->
+
+
 # RUVSON SINGULARITY ENGINE v2 (RSE-2)
 
 <p align="center"><img src=".github/social-preview.png" alt="ruvson-rse2" width="100%"></p>
@@ -30,3 +39,10 @@ OpenVoice+петля, kNN-VC, CREPE-судья).
 ## Лицензия
 
 MIT — см. [LICENSE](LICENSE).
+
+<!--ФОРЖ:ПОДВАЛ-->
+---
+
+<div align="center">
+  <sub>◆ картина и штандарт — ручная ковка <a href="https://github.com/rtynbirf">КУЗНИ ПОЛИМАТ</a> · ЧЕЛОВЕК=АККАУНТ=PID1 ◆</sub>
+</div>
