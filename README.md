@@ -1,18 +1,18 @@
 <div align="center">
-  <img src="banner.png" alt="ruvson-rse2 — Станок одной песни — движок сингулярности v2" width="100%">
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-rse2@main/banner.png" alt="ruvson-rse2 — Станок одной песни — движок сингулярности v2" width="100%">
 </div>
 
 <!--ФОРЖ:МУЗА:НАЧАЛО-->
 <div align="center">
-  <img src="repo-muse.svg" width="100%" alt="Муза ruvson-rse2: мастерская НОТЫ-ЛЕНТЫ, кузня ПОЛИМАТ, раунд 12 · REVE=РЕВО" />
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-rse2@main/repo-muse.svg" width="100%" alt="Муза ruvson-rse2: мастерская НОТЫ-ЛЕНТЫ, кузня ПОЛИМАТ, раунд 12 · REVE=РЕВО" />
   <br/>
-  <img src="forge-divider.svg" width="62%" alt="делитель мастерской НОТЫ-ЛЕНТЫ" />
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-rse2@main/forge-divider.svg" width="62%" alt="делитель мастерской НОТЫ-ЛЕНТЫ" />
 </div>
 <!--ФОРЖ:МУЗА:КОНЕЦ-->
 
 <!--ФОРЖ:ПАСПОРТ:НАЧАЛО-->
 <div align="center">
-  <img src="revo-page.svg" width="100%" alt="РЕВО-паспорт страницы ruvson-rse2: строение файлов, лексикон, числа — по фактическому контенту" />
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-rse2@main/revo-page.svg" width="100%" alt="РЕВО-паспорт страницы ruvson-rse2: строение файлов, лексикон, числа — по фактическому контенту" />
 </div>
 
 | ФАЙЛОВ | ПАПОК | КОММИТОВ | ОБНОВЛЕНО | РЕЛИЗОВ |
@@ -24,7 +24,7 @@
 
 # RUVSON SINGULARITY ENGINE v2 (RSE-2)
 
-<p align="center"><img src=".github/social-preview.png" alt="ruvson-rse2" width="100%"></p>
+<p align="center"><img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-rse2@main/.github/social-preview.png" alt="ruvson-rse2" width="100%"></p>
 
 
 
