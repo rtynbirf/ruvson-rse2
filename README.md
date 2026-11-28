@@ -25,6 +25,18 @@
 # ruvson-rse2
 
 <div align="center">
+
+<a href="https://github.com/rtynbirf/ruvson-rse2"><img src="banner.png" width="100%" alt="ruvson-rse2 — штандарт мастерской в каноне ORNAMENTAL MYTHO-REALISM"></a>
+
+</div>
+
+
+
+
+
+# ruvson-rse2
+
+<div align="center">
   <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-rse2@main/banner.png" alt="ruvson-rse2 — Станок одной песни — движок сингулярности v2" width="100%">
 </div>
 
