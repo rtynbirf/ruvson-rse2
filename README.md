@@ -1,5 +1,7 @@
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-rse2@main/banner.png" alt="ruvson-rse2 — Станок одной песни — движок сингулярности v2" width="100%">
+
+<a href="https://github.com/rtynbirf/ruvson-rse2"><img src="banner.png" width="100%" alt="ruvson-rse2 — штандарт мастерской в каноне ORNAMENTAL MYTHO-REALISM"></a>
+
 </div>
 
 <!--ФОРЖ:МУЗА:НАЧАЛО-->
@@ -12,13 +14,23 @@
 
 <!--ФОРЖ:ПАСПОРТ:НАЧАЛО-->
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-rse2@main/revo-page.svg" width="100%" alt="РЕВО-паспорт страницы ruvson-rse2: строение файлов, лексикон, числа — по фактическому контенту" />
+  <img src="revo-page.svg" width="100%" alt="РЕВО-паспорт страницы ruvson-rse2 №53 в каноне ORNAMENTAL MYTHO-REALISM: орнаментальная решётка, медальон-миф, строение файлов, лексикон — по фактическому контенту" />
 </div>
 
 | ФАЙЛОВ | ПАПОК | КОММИТОВ | ОБНОВЛЕНО | РЕЛИЗОВ |
 |---:|---:|---:|---|---:|
-| 75 | 6 | 63 | 2026-11-18 | 6 |
+| 85 | 8 | 1 | 2026-11-28 | 6 |
 <!--ФОРЖ:ПАСПОРТ:КОНЕЦ-->
+
+# ruvson-rse2
+
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/rtynbirf/ruvson-rse2@main/banner.png" alt="ruvson-rse2 — Станок одной песни — движок сингулярности v2" width="100%">
+</div>
+
+
+
+
 
 
 
